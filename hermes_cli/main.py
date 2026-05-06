@@ -897,7 +897,11 @@ def _tui_need_npm_install(root: Path) -> bool:
         return False
     marker = root / "node_modules" / ".package-lock.json"
     if not marker.is_file():
-        return True
+        # npm's hidden lockfile is missing (deleted, corrupted, or an npm
+        # version that writes it elsewhere).  @hermes/ink IS installed
+        # (verified above), so the critical packages are present — trust
+        # the existing install and skip content comparison.
+        return False
 
     # Compare lockfile contents, not mtimes: git checkouts and npm rewrites
     # can bump the root lockfile timestamp even when installed deps already
